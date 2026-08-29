@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/tournament/api")
 public class TournamentController {
 
-    @GetMapping("hello-world")
+    @GetMapping("hello")
     public String helloWorld() {
-        return "HelloWorld";
+        return "Hello World";
     }
 
 }
