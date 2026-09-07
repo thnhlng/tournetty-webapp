@@ -144,14 +144,14 @@ steht das **Wie**.
 
 Jeder Entscheid nennt das Qualitätsziel, aus dem er folgt — und was er kostet.
 
-| ID | Entscheid | Getragen von | Preis |
-|---|---|---|---|
-| **ADR-1** | Modularer Monolith, fachlich geschnitten (nicht nach Schichten) | Q3 Wartbarkeit · Rahmenbedingung: kleines Team, ein Deployment-Ziel | Module müssen sich diszipliniert an ihre Grenzen halten — der Compiler erzwingt es nicht |
-| **ADR-2** | LLM nur hinter einem Port, ein Adapter, ein Fake; jede Antwort wird gegen ein Schema geprüft | Q4 Testbarkeit · NfA-4 | Der Port ist der kleinste gemeinsame Nenner aller Provider — providerspezifische Stärken bleiben liegen |
-| **ADR-3** | Spielplan-Erzeugung ist **deterministisch und regelbasiert**. Die KI plant nicht, sie **schlägt vor** | Q1 Korrektheit · Q4 Testbarkeit | Bei Umplanung ist die KI auf das beschränkt, was der Regelkern validieren kann |
-| **ADR-4** | Erfassung und Anmeldung antworten sofort; Plan- und Vorschlagsberechnung laufen als Job | Q5 Performance · NfA-1 | Zwei Zustände statt einem: «berechnet» und «wird berechnet» — die UI muss das zeigen |
-| **ADR-5** | HITL-Gate: kein KI-Vorschlag wird persistiert, bevor der Mensch ihn annimmt. Vorschlag, Begründung und Entscheid werden append-only protokolliert | NfA-4 Nachvollziehbarkeit | Jede Umplanung kostet einen Klick — auch die offensichtlich richtige |
-| **ADR-6** | Turniermodi, Punktesysteme, Tie-Breaker, Pausen- und Platzregeln als Konfiguration, nicht als Code | Q3 Wartbarkeit | Ein Konfigurationsmodell ist zu bauen und zu validieren, bevor der erste Modus läuft |
+| ID        | Entscheid                                                                                                                                         | Getragen von                                                        | Preis                                                                                                   |
+|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| **ADR-1** | Modularer Monolith, fachlich geschnitten (nicht nach Schichten)                                                                                   | Q3 Wartbarkeit · Rahmenbedingung: kleines Team, ein Deployment-Ziel | Module müssen sich diszipliniert an ihre Grenzen halten — der Compiler erzwingt es nicht                |
+| **ADR-2** | LLM nur hinter einem Port, ein Adapter, ein Fake; jede Antwort wird gegen ein Schema geprüft                                                      | Q4 Testbarkeit · NfA-4                                              | Der Port ist der kleinste gemeinsame Nenner aller Provider — providerspezifische Stärken bleiben liegen |
+| **ADR-3** | Spielplan-Erzeugung ist **deterministisch und regelbasiert**. Die KI plant nicht, sie **schlägt vor**                                             | Q1 Korrektheit · Q4 Testbarkeit                                     | Bei Umplanung ist die KI auf das beschränkt, was der Regelkern validieren kann                          |
+| **ADR-4** | Erfassung und Anmeldung antworten sofort; Plan- und Vorschlagsberechnung laufen als Job                                                           | Q5 Performance · NfA-1                                              | Zwei Zustände statt einem: «berechnet» und «wird berechnet» — die UI muss das zeigen                    |
+| **ADR-5** | HITL-Gate: kein KI-Vorschlag wird persistiert, bevor der Mensch ihn annimmt. Vorschlag, Begründung und Entscheid werden append-only protokolliert | NfA-4 Nachvollziehbarkeit                                           | Jede Umplanung kostet einen Klick — auch die offensichtlich richtige                                    |
+| **ADR-6** | Turniermodi, Punktesysteme, Tie-Breaker, Pausen- und Platzregeln als Konfiguration, nicht als Code                                                | Q3 Wartbarkeit                                                      | Ein Konfigurationsmodell ist zu bauen und zu validieren, bevor der erste Modus läuft                    |
 
 ## Kontextsicht
 
