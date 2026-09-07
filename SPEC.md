@@ -35,7 +35,7 @@ Dieser MVP-Slice deckt ab: Teams melden sich an -> Teilnehmerliste aufgenommen -
 
 ### Enthalten
 <!-- 4–6 Punkte, je eine Zeile, jeweils mit der wichtigsten Eigenschaft dahinter -->
-- Teams können sich über Forms anmelden
+- Teams können sich über ein eigenes Anmeldeformular im Frontend anmelden (kein externer Formular-Dienst)
 - Turnier Generierung nach Gruppenphase(Round-Robin) und K.O. Runden
 - Teams, Gruppen und Spielfeldern können erstellt werden
 - Gestützt auf Anzahl Teilnehmer, schlägt die KI auf Anfrage vor wie viel Gruppen erstellt werden soll.
@@ -70,6 +70,10 @@ Vorort-Mitarbeitende (trägt Ergebnisse ein) · Teilnehmer (verfolgt das Ergebni
 
 **Nachbarsysteme:** externer LLM-Provider für Klassifikation und Turnierplanung · DB für Ergebnisse und Gruppen speichern
 
+*Kein externer Formular-Dienst:* Das Anmeldeformular ist Teil des eigenen Frontends und schreibt über einen
+öffentlichen, unauthentifizierten API-Endpunkt. Die Anmeldedaten stammen trotzdem von aussen und gelten als
+Fremddaten (siehe Vertrauensgrenze in Teil B).
+
 ## 5. Funktionale Anforderungen
 
 Je Anforderung mindestens ein Akzeptanzkriterium (Given/When/Then, verkürzt).
@@ -96,6 +100,11 @@ Je Anforderung mindestens ein Akzeptanzkriterium (Given/When/Then, verkürzt).
 ### FR-6 · Dashboard
 - **When** der User das Dashboard öffnet, **then** wird eine Übersicht vom Turnier mit den Spielen und Tabellen angezeigt.
 - **When** das Administration-Team das Dashboard öffnet, **then** wird eine Übersicht von den Entitäten eines Turniers angezeigt. Diese können vom User bearbeitet, neu erstellt und gelöscht werden.
+
+### FR-7 · Anmeldung über eigenes Formular
+- **When** ein Team das Anmeldeformular des Frontends absendet, **then** wird die Anmeldung validiert und als Anmeldung zum Turnier gespeichert; das Team erhält sofort eine Bestätigung.
+- **When** die Anmeldung unvollständig oder ein Teamname bereits vergeben ist, **then** wird sie abgelehnt und der Grund im Formular angezeigt.
+- **When** der Organisator die Anmeldungen öffnet, **then** sieht er alle eingegangenen Anmeldungen und kann sie annehmen oder ablehnen, bevor daraus Teams werden.
 
 
 ## 6. Nichtfunktionale Anforderungen (SMART)
@@ -152,6 +161,7 @@ Jeder Entscheid nennt das Qualitätsziel, aus dem er folgt — und was er kostet
 | **ADR-4** | Erfassung und Anmeldung antworten sofort; Plan- und Vorschlagsberechnung laufen als Job                                                           | Q5 Performance · NfA-1                                              | Zwei Zustände statt einem: «berechnet» und «wird berechnet» — die UI muss das zeigen                    |
 | **ADR-5** | HITL-Gate: kein KI-Vorschlag wird persistiert, bevor der Mensch ihn annimmt. Vorschlag, Begründung und Entscheid werden append-only protokolliert | NfA-4 Nachvollziehbarkeit                                           | Jede Umplanung kostet einen Klick — auch die offensichtlich richtige                                    |
 | **ADR-6** | Turniermodi, Punktesysteme, Tie-Breaker, Pausen- und Platzregeln als Konfiguration, nicht als Code                                                | Q3 Wartbarkeit                                                      | Ein Konfigurationsmodell ist zu bauen und zu validieren, bevor der erste Modus läuft                    |
+| **ADR-7** | Anmeldung über eigenes React-Frontend statt externem Formular-Dienst; der öffentliche `signup`-Endpunkt validiert serverseitig und gilt als Grenze | NfA-3 User-Freundlichkeit · Q3 Wartbarkeit · Scope-Kontrolle        | Formular, Validierung, Spam-/Rate-Limit-Schutz und Betrieb des öffentlichen Endpunkts sind selbst zu bauen — das kann ein Dienst sonst |
 
 ## Kontextsicht
 
@@ -159,38 +169,41 @@ Jeder Entscheid nennt das Qualitätsziel, aus dem er folgt — und was er kostet
    ┌──────────────────┐   ┌────────────────────────┐   ┌───────────────────┐
    │  Organisator:in  │   │ Vorort-Mitarbeitende   │   │ Teams · Publikum  │
    └────────┬─────────┘   └───────────┬────────────┘   └─────────┬─────────┘
-            │ plant, bestätigt        │ trägt Ergebnisse ein     │ liest Spielplan
-            ▼                         ▼                          ▼
+            │ plant, bestätigt        │ trägt Ergebnisse ein     │ liest Spielplan,
+            ▼                         ▼                          ▼ meldet Team an
       ╔═══════════════════════════════════════════════════════════════════╗
       ║                            Tournetty                              ║
       ║   Turnier · Phasen · Spielplan · Feldzuteilung · Ergebnisse ·     ║
-      ║          Vorschlag mit Freigabe · Dashboard · Datenbank           ║
+      ║   Anmeldung · Vorschlag mit Freigabe · Dashboard · Datenbank      ║
       ╚═══════╤═══════════════════════════════════════════╤═══════════════╝
               │ Planungskontext, ohne Klarnamen           │ Anmeldungen: fremd,
               │ (Slots, Felder, Gruppen)                  │ roh, ungeprüft
    ╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌  Vertrauensgrenze  ╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
-              ▼   ▲ Vorschlag + Begründung                ▲
+              ▼   ▲ Vorschlag + Begründung                ▲ öffentliches
       ┌───────┴───┴──────┐                        ┌───────┴──────────┐
-      │  LLM-Provider    │  extern                │ Formular-Dienst  │  extern
-      └──────────────────┘                        └──────────────────┘
+      │  LLM-Provider    │  extern                │ Anmeldeformular  │  eigenes
+      └──────────────────┘                        │  (React, public) │  Frontend,
+                                                  └──────────────────┘  fremde Eingaben
 ```
 
 Die gestrichelte Linie ist der Kern der Aufgabe. Sie hat bei Tournetty **zwei**
-Durchstiche, nicht einen: hinaus zum Provider und **herein** vom Formular-Dienst.
-Anmeldungen sind Fremddaten — was hereinkommt, ist so wenig vertrauenswürdig wie das,
-was hinausgeht. Die Datenbank liegt innen.
+Durchstiche, nicht einen: hinaus zum Provider und **herein** über die Anmeldung.
+Dass das Formular jetzt unser eigenes React-Frontend ist, verschiebt die Grenze **nicht** —
+das Frontend läuft im Browser fremder Leute, der Anmelde-Endpunkt ist öffentlich und
+unauthentifiziert. Was dort hereinkommt, ist so wenig vertrauenswürdig wie das, was
+hinausgeht; Validierung im Browser ist Komfort, nicht Schutz. Die Datenbank liegt innen.
 
 ## Containersicht
 
 ```text
-  [Web-UI · Cloudflare]                     [Formular-Dienst] ╌╌╌╌╌┐
-            │                                                      ╎
-            ▼                                                      ▼
+  [ React-SPA · Cloudflare ]  Admin-UI  ╎  öffentliches Anmeldeformular ╌╌╌┐
+            │                           ╎                                  ╎
+            ▼                           ╎ ein Deployment, zwei Zonen       ▼
   ┌──────────────────────── REST-API · Heroku ──────────────────────────┐
-  │                                                          [ intake ] │  Normalisierung
-  │   tournament ──▶ phase ──▶ schedule ──▶ court                  │    │  an der Grenze
-  │    FR-1           FR-3      FR-2         FR-5                  │    │
-  │      │              │         │            │                   │    │
+  │                                                        [ signup ]   │  Validierung,
+  │   tournament ──▶ phase ──▶ schedule ──▶ court                  │    │  Normalisierung,
+  │    FR-1           FR-3      FR-2         FR-5                  │    │  Rate-Limit
+  │      │              │         │            │                   │    │  FR-7
   │      │              │         └──(Job)─────┘                   │    │  ADR-4
   │      ▼              ▼              ▼                           ▼    │
   │  ┌──────────────────────────── Datenbank ──────────────────────────┐│
@@ -207,7 +220,7 @@ was hinausgeht. Die Datenbank liegt innen.
                                                         ╌╌╌╌╌╌▶ Provider
 ```
 
-Drei Dinge liest man aus dem Bild ab:
+Vier Dinge liest man aus dem Bild ab:
 
 - **`schedule` erzeugt Pläne ohne das Modell.** Round-Robin und K.-o.-Baum sind Regeln,
   keine Vorhersage — ADR-3. Q1 verlangt eine Invariante («ein Team, ein Slot»), die man
@@ -217,6 +230,10 @@ Drei Dinge liest man aus dem Bild ab:
 - **Der einzige Weg nach aussen führt durch Port und Adapter, der einzige Weg zurück in
   die Datenbank durch Prüfung und Freigabe** — ADR-2 und ADR-5. Ein `proposal` ist bis
   zur Annahme ein Datensatz ohne Wirkung.
+- **Das eigene Frontend ist kein Vertrauensbeweis.** Die SPA ist ein Deployment mit zwei
+  Zonen: Admin-Sichten hinter Authentifizierung, Anmeldeformular öffentlich. Der
+  öffentliche Pfad läuft durch `signup` und wird dort geprüft, als käme er von irgendwo —
+  ADR-7.
 
 ## Paketstruktur
 
@@ -232,6 +249,8 @@ tournetty-webapp/
 │   ├── court/              # FR-5 · Feldzuteilung, Auslastung, Verschieben — Q2
 │   ├── scoring/            # FR-4 · Tabelle, Tie-Breaker, Weiterleitung im K.-o.
 │   ├── proposal/           # ADR-5 · Vorschlag, Begründung, Annahme, Verwerfen
+│   ├── signup/             # FR-7 · ADR-7 · öffentlicher Anmelde-Endpunkt
+│   │                       #   Validierung, Duplikate, Annahme durch Organisator
 │   ├── dashboard/          # FR-6 · Lesesichten Organisation und Publikum
 │   └── platform/
 │       ├── llm/
@@ -239,14 +258,15 @@ tournetty-webapp/
 │       │   ├── ProviderAdapter.java    # der eine Weg nach aussen
 │       │   ├── FakeAdvisor.java        # deterministisch, für Tests
 │       │   └── ProposalSchema.java     # Ausgabe prüfen, bevor sie zählt
-│       ├── intake/                     # Formular-Import, Normalisierung, Duplikate
 │       ├── audit/                      # NfA-4 · append-only
 │       └── persistence/
 ├── src/test/java/ch/tournetty/
 │   ├── unit/               # Regeln, Tabellen, Tie-Breaker — ohne Modell (Q4)
 │   └── corpus/             # versionierte Fälle: Teamausfall, ungerade Teamzahl,
 │                           # Gleichstand, Feld fällt weg (SPEC §7 Evaluation)
-├── frontend/               # eigenständig baubar, Deployment Cloudflare
+├── frontend/               # React · eigenständig baubar, Deployment Cloudflare
+│   ├── admin/              # authentifiziert: Planung, Erfassung, Freigabe
+│   └── signup/             # FR-7 · ADR-7 · öffentliches Anmeldeformular
 └── pom.xml
 ```
 
@@ -261,15 +281,15 @@ Sprache; Java und Spring Boot sind hier nur die Rahmenbedingung aus SPEC §7.
 
 ## Woran eine gute Lösung erkennbar ist
 
-| Kriterium | Was zu sehen sein muss |
-|---|---|
-| **Herleitung** | Jeder Struktur-Entscheid nennt das Qualitätsziel, aus dem er folgt |
-| **Vertrauensgrenze** | Eingezeichnet — und zwar **beidseitig**: Provider hinaus, Formular-Dienst herein |
-| **Regeln vor Modell** | Der Spielplan entsteht deterministisch; die KI arbeitet am bestehenden Plan |
-| **Ein Weg nach aussen** | Der LLM-Zugriff ist gebündelt, nicht über die Module verstreut |
-| **Freigabe vor Wirkung** | Kein Vorschlag verändert Daten, bevor der Mensch ihn annimmt (NfA-4) |
-| **Preis benannt** | Zu jedem Entscheid steht, was er kostet |
-| **Scope gehalten** | Kein Swiss-System, kein Team-Login, kein Live-Ticker — die SPEC schliesst sie aus |
+| Kriterium                | Was zu sehen sein muss                                                                 |
+|--------------------------|----------------------------------------------------------------------------------------|
+| **Herleitung**           | Jeder Struktur-Entscheid nennt das Qualitätsziel, aus dem er folgt                     |
+| **Vertrauensgrenze**     | Eingezeichnet — und zwar **beidseitig**: Provider hinaus, öffentliche Anmeldung herein |
+| **Regeln vor Modell**    | Der Spielplan entsteht deterministisch; die KI arbeitet am bestehenden Plan            |
+| **Ein Weg nach aussen**  | Der LLM-Zugriff ist gebündelt, nicht über die Module verstreut                         |
+| **Freigabe vor Wirkung** | Kein Vorschlag verändert Daten, bevor der Mensch ihn annimmt (NfA-4)                   |
+| **Preis benannt**        | Zu jedem Entscheid steht, was er kostet                                                |
+| **Scope gehalten**       | Kein Swiss-System, kein Team-Login, kein Live-Ticker — die SPEC schliesst sie aus      |
 
 ## Typische Fehlgriffe — live ansprechen
 
@@ -283,8 +303,11 @@ Sprache; Java und Spring Boot sind hier nur die Rahmenbedingung aus SPEC §7.
    Nachmittag umwerfen. Wer das benennt, hat begriffen, dass Architektur Abwägung ist —
    der stärkste Punkt in der Auswertung. Bewusst danach fragen, wenn niemand darauf kommt.
 3. **Vertrauensgrenze fehlt oder sitzt falsch.** Häufig wird sie um die Datenbank
-   gezogen. Die Datenbank ist innen. Und wer nur den Provider aussen zeichnet, hat den
-   Formular-Dienst übersehen: Anmeldungen sind Fremddaten.
+   gezogen. Die Datenbank ist innen. Und wer nur den Provider aussen zeichnet, hat die
+   Anmeldung übersehen: Anmeldungen sind Fremddaten. Seit das Formular das eigene
+   React-Frontend ist, wird der Fehler verlockender — «das ist doch unser Code». Der Code
+   läuft im fremden Browser; verlassen kann man sich nur auf die Prüfung im `signup`-Modul.
+   Rückfrage: *Was passiert, wenn jemand den Endpunkt direkt mit `curl` aufruft?*
 4. **KI-Vorschlag wird direkt gespeichert.** Dann bricht NfA-4. Der Vorschlag muss bis
    zur Annahme wirkungslos bleiben — Entwurf, nicht Änderung. Rückfrage: *Was steht in
    der Datenbank, solange niemand entschieden hat?*
@@ -315,6 +338,10 @@ Zwei Stellen, die im Entwurf auffallen und in die nächste SPEC-Fassung gehören
   ausgeschlossen ist. Für wen gilt die Anforderung — nur für das Organisationsteam?
 - **§7 Evaluation** ist leer, obwohl NfA-4 und Q4 einen versionierten Testkorpus
   voraussetzen. Ohne ihn lässt sich «die KI ist geprüft» nicht belegen.
+- **Der öffentliche Anmelde-Endpunkt hat keine NfA.** Mit ADR-7 betreiben wir ihn selbst,
+  aber die SPEC sagt nichts über Missbrauch: Wie viele Anmeldungen pro IP und Minute?
+  Was passiert bei Spam-Anmeldungen? NfA-2 spricht nur über Login-Versuche und deckt
+  einen unauthentifizierten Endpunkt nicht ab.
 
 Beides sind SPEC-Lücken, keine Entwurfsfehler — und genau deshalb fallen sie erst beim
 Entwerfen auf. Das ist normal und ein gutes Zeichen.
