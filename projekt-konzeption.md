@@ -30,12 +30,12 @@ Beispielstruktur:
 
 ## 1.3 Stakeholder
 
-| Stakeholder                           | Kerninteresse                                                                                                                 | Bezug im Dokument              |
-|---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|--------------------------------|
-| Organisationsteam / Veranstalter      | Turnier effizient planen und pünktlich zu Ende bringen, behält die Entscheidung über jede Umplanung                           | FR-1 · FR-2 · Q3 · §6.5 (HITL) |
+| Stakeholder                           | Kerninteresse                                                                                                                    | Bezug im Dokument              |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| Organisationsteam / Veranstalter      | Turnier effizient planen und pünktlich zu Ende bringen, behält die Entscheidung über jede Umplanung                              | FR-1 · FR-2 · Q3 · §6.5 (HITL) |
 | Teams / Teamverantwortliche           | Unkomplizierte Anmeldung mit sofortiger Bestätigung, Übersicht über das nächste eigene Spiel, Kontaktdaten gehen nicht an Dritte | FR-7 · ADR-002 · FR-6 · §6.3   |
-| Vorort-Mitarbeitende / Schiedsgericht | Ergebnisse schnell und fehlerfrei erfassen                                                               | §2.1 · NfA-2 · NfA-3           |
-| Publikum / Zuschauende                | Spielplan und Tabelle ohne Login lesen; reiner Lesezugriff, keine Schreibrechte                                               | FR-6 · Trust Boundary 3 (§6.4) |
+| Vorort-Mitarbeitende / Schiedsgericht | Ergebnisse schnell und fehlerfrei erfassen                                                                                       | §2.1 · NfA-2 · NfA-3           |
+| Publikum / Zuschauende                | Spielplan und Tabelle ohne Login lesen; reiner Lesezugriff, keine Schreibrechte                                                  | FR-6 · Trust Boundary 3 (§6.4) |
 
 Nicht als Stakeholder geführt: **Sponsoren** (Anzeige von Sponsoren ist Nicht-Ziel, §7.1) sowie **LLM-Provider, Heroku und Cloudflare**: das sind Lieferanten ohne eigenes Interesse am Turnier; sie erscheinen in der Kontextsicht (§2.1), nicht hier.
 
@@ -45,7 +45,6 @@ Nicht als Stakeholder geführt: **Sponsoren** (Anzeige von Sponsoren ist Nicht-Z
 
 **Beschreibung:**
 Das System generiert den Spielplan für das Turnier.
-
 
 **KI-Nutzen:**
 Bei unvorhersehbare Abmeldungen oder Nichterscheinen eines Teams werden die Felder nicht mehr komplett ausgelastet sein.
@@ -79,7 +78,6 @@ Das System zeigt dem User eine Gesamtübersicht des Turniers.
 **Beschreibung:**
 Teams melden sich über ein Anmeldeformular im eigenen Frontend an, ohne externen Formular-Dienst (ADR-002). Die Anmeldung wird serverseitig geprüft, sofort bestätigt oder mit Grund abgelehnt; der Organisator nimmt sie an, bevor daraus ein Team im Turnier wird.
 
-
 # 2. Architekturentwurf – C4
 
 ## 2.1 C4 Level 1 – System Context
@@ -89,11 +87,10 @@ Teams melden sich über ein Anmeldeformular im eigenen Frontend an, ohne externe
 Die System-Context-Sicht zeigt, wer Tournetty benutzt und mit welchen fremden Systemen Tournetty Daten austauscht.
 Sie macht sichtbar, dass Tournetty selbst eine Blackbox ist und nur an zwei Stellen die Vertrauensgrenze überschreitet: hinaus zum LLM-Provider und herein über das öffentliche Anmeldeformular.
 
-
 ### Beteiligte Systeme und Akteure
 
 | Element            | Typ             | Beschreibung     |
-|--------------------|-----------------|------------------|
+| ------------------ | --------------- | ---------------- |
 | User[Benutzer]     | Person          | Benutzer         |
 | API[Backend / API] | Software System | Business-Logik   |
 | DB[(Database)]     | External System | Datenspeicherung |
@@ -101,32 +98,32 @@ Sie macht sichtbar, dass Tournetty selbst eine Blackbox ist und nur an zwei Stel
 
 Ergänzend zur Tabelle (siehe SPEC §4 «Systemkontext»); die Akteure entsprechen den vier Stakeholdern aus Abschnitt 1.3:
 
-| Element                               | Typ    | Beschreibung                                                                                                                                             |
-|---------------------------------------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Organisationsteam / Veranstalter      | Person | Plant das Turnier, gibt KI-Vorschläge frei oder verwirft sie (HITL, §6.5)                                                                                |
+| Element                               | Typ    | Beschreibung                                                                                                                                          |
+| ------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Organisationsteam / Veranstalter      | Person | Plant das Turnier, gibt KI-Vorschläge frei oder verwirft sie (HITL, §6.5)                                                                             |
 | Teams / Teamverantwortliche           | Person | Melden sich über das öffentliche Anmeldeformular an (Fremddaten, roh und ungeprüft, Eingangsgrenze) und lesen während des Turniers ihr nächstes Spiel |
-| Vorort-Mitarbeitende / Schiedsgericht | Person | Trägt während des Turniers die Spielergebnisse ein                                                                                                       |
-| Publikum / Zuschauende                | Person | Liest Spielplan und Tabelle, ohne Login                                                                                                                  |
+| Vorort-Mitarbeitende / Schiedsgericht | Person | Trägt während des Turniers die Spielergebnisse ein                                                                                                    |
+| Publikum / Zuschauende                | Person | Liest Spielplan und Tabelle, ohne Login                                                                                                               |
 
 Ein externer Formular-Dienst wird bewusst **nicht** verwendet: das Anmeldeformular ist Teil des eigenen React-Frontends (ADR-002). Die Eingangsgrenze verschwindet dadurch nicht, sie verschiebt sich vom fremden Dienst auf den eigenen, öffentlich erreichbaren `signup`-Endpunkt.
 
 ### Diagramm
 
-``` mermaid
+```mermaid
 
 flowchart LR
 User[User]
 UI[UI]
 API[Backend / API]
 DB[(Database)]
-KI[KI-Dienst] 
+KI[KI-Dienst]
 
     User --> UI
     UI --> API
     API --> KI
     API --> DB
 
-``` 
+```
 
 Verfeinerte Fassung mit Akteuren und Vertrauensgrenze:
 
@@ -162,14 +159,14 @@ Die gestrichelten Kanten sind die Durchstiche durch die Vertrauensgrenze. Es sin
 
 ### Containerübersicht
 
-| Container        | Technologie                            | Verantwortung                                                                                                          |
-|------------------|----------------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| Frontend         | React (Deployment Cloudflare)          | Turnier-Verwaltung, Phasen-Planung per Drag-and-Drop, Ergebniserfassung, Dashboard für Publikum sowie das öffentliche Anmeldeformular (FR-3, FR-5, FR-6, FR-7) |
-| Backend/API      | Spring Boot 4 / Java 25 (Heroku)       | Fachlogik als modularer Monolith: CRUD, deterministische Spielplanerzeugung, Feldzuteilung, Scoring, Vorschlagsverwaltung |
-| Datenbank        | PostgreSQL (Heroku Postgres)           | Persistenz von Turnier, Teams, Gruppen, Phasen, Spielen, Feldern, Ergebnissen sowie Audit-Log (append-only)             |
-| KI-Integration   | LLM-Port + Provider-Adapter + Fake     | Einziger Weg nach aussen zum LLM-Provider; jede Antwort wird gegen ein Schema und gegen die Turnierregeln geprüft (ADR-2) |
-| Job-Ausführung   | Spring-interner Scheduler / Worker     | Rechenintensive Plan- und Vorschlagsberechnung läuft asynchron, damit Erfassung sofort antwortet (ADR-4)                |
-| Signup           | Fachmodul im Backend                   | Öffentlicher Anmelde-Endpunkt: serverseitige Validierung, Normalisierung, Duplikatserkennung, Rate-Limit; Grenzkontrolle für Fremddaten (FR-7)  |
+| Container      | Technologie                        | Verantwortung                                                                                                                                                  |
+| -------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend       | React (Deployment Cloudflare)      | Turnier-Verwaltung, Phasen-Planung per Drag-and-Drop, Ergebniserfassung, Dashboard für Publikum sowie das öffentliche Anmeldeformular (FR-3, FR-5, FR-6, FR-7) |
+| Backend/API    | Spring Boot 4 / Java 25 (Heroku)   | Fachlogik als modularer Monolith: CRUD, deterministische Spielplanerzeugung, Feldzuteilung, Scoring, Vorschlagsverwaltung                                      |
+| Datenbank      | PostgreSQL (Heroku Postgres)       | Persistenz von Turnier, Teams, Gruppen, Phasen, Spielen, Feldern, Ergebnissen sowie Audit-Log (append-only)                                                    |
+| KI-Integration | LLM-Port + Provider-Adapter + Fake | Einziger Weg nach aussen zum LLM-Provider; jede Antwort wird gegen ein Schema und gegen die Turnierregeln geprüft (ADR-2)                                      |
+| Job-Ausführung | Spring-interner Scheduler / Worker | Rechenintensive Plan- und Vorschlagsberechnung läuft asynchron, damit Erfassung sofort antwortet (ADR-4)                                                       |
+| Signup         | Fachmodul im Backend               | Öffentlicher Anmelde-Endpunkt: serverseitige Validierung, Normalisierung, Duplikatserkennung, Rate-Limit; Grenzkontrolle für Fremddaten (FR-7)                 |
 
 ### Diagramm
 
@@ -265,11 +262,11 @@ Tournetty ist ein Turnierplaner mit deutlich unterscheidbaren Fachbereichen (Tur
 
 Zu berücksichtigen waren insbesondere:
 
-* kleine Projektgrösse: eine Person, ein Deployment-Ziel, kein 24/7-Betrieb (SPEC §7)
-* begrenzte Entwicklungszeit über die Blöcke des Moduls
-* zukünftige Erweiterbarkeit um Turniermodi, Punktesysteme und Tie-Breaker (Q3)
-* KI-Integration, die testbar bleiben muss, auch ohne Aufruf des echten Modells (Q4, ADR-2)
-* Sicherheitsanforderungen: zwei Durchstiche durch die Vertrauensgrenze, kein KI-Vorschlag ohne menschliche Freigabe (NfA-4)
+- kleine Projektgrösse: eine Person, ein Deployment-Ziel, kein 24/7-Betrieb (SPEC §7)
+- begrenzte Entwicklungszeit über die Blöcke des Moduls
+- zukünftige Erweiterbarkeit um Turniermodi, Punktesysteme und Tie-Breaker (Q3)
+- KI-Integration, die testbar bleiben muss, auch ohne Aufruf des echten Modells (Q4, ADR-2)
+- Sicherheitsanforderungen: zwei Durchstiche durch die Vertrauensgrenze, kein KI-Vorschlag ohne menschliche Freigabe (NfA-4)
 
 ## 3.2 Entscheidung
 
@@ -291,63 +288,63 @@ Die Modulgrenzen halten den Weg zu Services offen, falls Last oder Team später 
 
 **Vorteile:**
 
-* Sehr vertraut, Spring-Boot-Standard, kein Erklärungsbedarf
-* Schnellster Start: die erste CRUD-Funktion steht in Minuten
-* Werkzeug- und Tutorial-Unterstützung ist maximal
+- Sehr vertraut, Spring-Boot-Standard, kein Erklärungsbedarf
+- Schnellster Start: die erste CRUD-Funktion steht in Minuten
+- Werkzeug- und Tutorial-Unterstützung ist maximal
 
 **Nachteile:**
 
-* Fachliche Änderungen streuen über alle Schichten; ein neues Punktesystem berührt Controller, Service und Model (Q3 verletzt)
-* Die Fachlogik ist nicht am Paketnamen ablesbar; `service/` wird zur Sammelstelle
-* Der LLM-Zugriff landet erfahrungsgemäss in mehreren Services statt an einer Stelle, wodurch die Vertrauensgrenze verwischt
+- Fachliche Änderungen streuen über alle Schichten; ein neues Punktesystem berührt Controller, Service und Model (Q3 verletzt)
+- Die Fachlogik ist nicht am Paketnamen ablesbar; `service/` wird zur Sammelstelle
+- Der LLM-Zugriff landet erfahrungsgemäss in mehreren Services statt an einer Stelle, wodurch die Vertrauensgrenze verwischt
 
 ### Alternative B: Microservices (Turnier-, Planungs-, Scoring-, KI-Service)
 
 **Vorteile:**
 
-* Unabhängige Skalierung und unabhängiges Deployment je Fachbereich
-* Harte Grenzen: der Compiler bzw. das Netz erzwingt, was beim Monolithen Disziplin verlangt
-* Technologiefreiheit pro Service
+- Unabhängige Skalierung und unabhängiges Deployment je Fachbereich
+- Harte Grenzen: der Compiler bzw. das Netz erzwingt, was beim Monolithen Disziplin verlangt
+- Technologiefreiheit pro Service
 
 **Nachteile:**
 
-* Betriebsaufwand steht in keinem Verhältnis zu <50 gleichzeitigen Nutzenden und einer Person im Team
-* Verteilte Transaktionen ausgerechnet dort, wo Q1 Korrektheit fordert («ein Team, ein Slot»); die Invariante wäre über Servicegrenzen zu halten
-* Lokales Testen und Debugging werden aufwendiger, was Q4 direkt trifft
+- Betriebsaufwand steht in keinem Verhältnis zu <50 gleichzeitigen Nutzenden und einer Person im Team
+- Verteilte Transaktionen ausgerechnet dort, wo Q1 Korrektheit fordert («ein Team, ein Slot»); die Invariante wäre über Servicegrenzen zu halten
+- Lokales Testen und Debugging werden aufwendiger, was Q4 direkt trifft
 
 ## 3.4 Qualitätsanforderungen
 
 Die Architekturentscheidung wurde anhand folgender Qualitätsanforderungen bewertet:
 
-| Qualitätsanforderung |  Priorität | Erwartung / Messkriterium                                                                                              |
-| -------------------- | ---------: | ---------------------------------------------------------------------------------------------------------------------- |
-| Korrektheit (Q1)     |       hoch | Invariante «ein Team spielt höchstens ein Spiel pro Slot» ist an einer Stelle (`schedule/invariants/`) prüfbar und getestet |
-| Wartbarkeit (Q3)     |       hoch | Ein neuer Turniermodus bzw. ein neues Punktesystem berührt genau ein Paket (`schedule/rules/`)                          |
-| Erweiterbarkeit      |       hoch | Neue Fachfunktion = neues Modul, ohne bestehende Module zu ändern; Provider austauschbar durch neuen Adapter            |
-| Testbarkeit (Q4)     |       hoch | Spielplan, Tabelle und Tie-Breaker sind deterministisch; KI-Pfad läuft im Test gegen `FakeAdvisor`, ohne Netzzugriff    |
-| Sicherheit           |       hoch | Genau ein Ausgang zum Provider; kein Vorschlag wird ohne Freigabe persistiert (NfA-4); keine Secrets im Repository      |
-| Regelmässigkeit (Q2) |     mittel | Felder sind pro Slot ausgelastet, messbar als Auslastungsgrad je Slot                                                   |
-| Performance (Q5)     |     mittel | Anmeldung/Erfassung antwortet sofort; Planberechnung läuft als Job (NfA-1: 50 gleichzeitige Nutzende)                   |
-| Skalierbarkeit       |    niedrig | MVP-Volumen < 50 gleichzeitige Nutzende; Modulgrenzen halten einen späteren Schnitt offen                               |
-| Verständlichkeit     |       hoch | Die Paketstruktur ist aus der Fachsprache lesbar (Turnier, Phase, Spielplan, Feld, Ergebnis)                            |
+| Qualitätsanforderung | Priorität | Erwartung / Messkriterium                                                                                                   |
+| -------------------- | --------: | --------------------------------------------------------------------------------------------------------------------------- |
+| Korrektheit (Q1)     |      hoch | Invariante «ein Team spielt höchstens ein Spiel pro Slot» ist an einer Stelle (`schedule/invariants/`) prüfbar und getestet |
+| Wartbarkeit (Q3)     |      hoch | Ein neuer Turniermodus bzw. ein neues Punktesystem berührt genau ein Paket (`schedule/rules/`)                              |
+| Erweiterbarkeit      |      hoch | Neue Fachfunktion = neues Modul, ohne bestehende Module zu ändern; Provider austauschbar durch neuen Adapter                |
+| Testbarkeit (Q4)     |      hoch | Spielplan, Tabelle und Tie-Breaker sind deterministisch; KI-Pfad läuft im Test gegen `FakeAdvisor`, ohne Netzzugriff        |
+| Sicherheit           |      hoch | Genau ein Ausgang zum Provider; kein Vorschlag wird ohne Freigabe persistiert (NfA-4); keine Secrets im Repository          |
+| Regelmässigkeit (Q2) |    mittel | Felder sind pro Slot ausgelastet, messbar als Auslastungsgrad je Slot                                                       |
+| Performance (Q5)     |    mittel | Anmeldung/Erfassung antwortet sofort; Planberechnung läuft als Job (NfA-1: 50 gleichzeitige Nutzende)                       |
+| Skalierbarkeit       |   niedrig | MVP-Volumen < 50 gleichzeitige Nutzende; Modulgrenzen halten einen späteren Schnitt offen                                   |
+| Verständlichkeit     |      hoch | Die Paketstruktur ist aus der Fachsprache lesbar (Turnier, Phase, Spielplan, Feld, Ergebnis)                                |
 
 ## 3.5 Bewertung
 
 | Kriterium       | Gewählte Architektur<br/>(modularer Monolith, fachlich) | Alternative A<br/>(Schichten) | Alternative B<br/>(Microservices) |
-| --------------- | ---------------------: | ------------: | ------------: |
-| Wartbarkeit     |                   `++` |          `-`  |          `+`  |
-| Erweiterbarkeit |                   `++` |          `0`  |          `+`  |
-| Testbarkeit     |                   `++` |          `+`  |          `-`  |
-| Sicherheit      |                    `+` |          `0`  |          `0`  |
-| Komplexität     |                    `+` |          `++` |         `--`  |
+| --------------- | ------------------------------------------------------: | ----------------------------: | --------------------------------: |
+| Wartbarkeit     |                                                    `++` |                           `-` |                               `+` |
+| Erweiterbarkeit |                                                    `++` |                           `0` |                               `+` |
+| Testbarkeit     |                                                    `++` |                           `+` |                               `-` |
+| Sicherheit      |                                                     `+` |                           `0` |                               `0` |
+| Komplexität     |                                                     `+` |                          `++` |                              `--` |
 
 Legende:
 
-* `++` = sehr gut
-* `+` = gut
-* `0` = neutral
-* `-` = ungünstig
-* `--` = sehr ungünstig
+- `++` = sehr gut
+- `+` = gut
+- `0` = neutral
+- `-` = ungünstig
+- `--` = sehr ungünstig
 
 Bei «Komplexität» heisst `++`, dass die Lösung am wenigsten Komplexität mitbringt. Die Schichtenvariante ist dort am einfachsten, verliert aber genau bei den Zielen, die für Tournetty höher priorisiert sind (Q3, Q4).
 
@@ -355,34 +352,34 @@ Bei «Komplexität» heisst `++`, dass die Lösung am wenigsten Komplexität mit
 
 ### Positive Konsequenzen
 
-* Ein neuer Turniermodus oder ein neues Punktesystem ist eine lokale Änderung in `schedule/rules/` (Q3)
-* Der KI-Anteil ist ohne echten Modellaufruf testbar, weil hinter dem Port ein deterministischer Fake steht (Q4)
-* Es gibt genau einen Ausgang nach aussen und genau einen Eingang für Fremddaten; die Vertrauensgrenze ist im Code auffindbar, nicht nur im Diagramm
-* Deployment bleibt einfach: ein Artefakt auf Heroku, ein Frontend auf Cloudflare
-* Der Weg zu einer späteren Aufteilung bleibt offen, weil die Modulgrenzen bereits fachlich gezogen sind
+- Ein neuer Turniermodus oder ein neues Punktesystem ist eine lokale Änderung in `schedule/rules/` (Q3)
+- Der KI-Anteil ist ohne echten Modellaufruf testbar, weil hinter dem Port ein deterministischer Fake steht (Q4)
+- Es gibt genau einen Ausgang nach aussen und genau einen Eingang für Fremddaten; die Vertrauensgrenze ist im Code auffindbar, nicht nur im Diagramm
+- Deployment bleibt einfach: ein Artefakt auf Heroku, ein Frontend auf Cloudflare
+- Der Weg zu einer späteren Aufteilung bleibt offen, weil die Modulgrenzen bereits fachlich gezogen sind
 
 ### Negative Konsequenzen / Trade-offs
 
-* Modulgrenzen sind Disziplin, kein Zwang: der Compiler verhindert einen Direktzugriff quer durch die Module nicht; das muss im Review auffallen
-* Der Port ist der kleinste gemeinsame Nenner aller Provider; providerspezifische Stärken (Function Calling, Structured Output) bleiben teilweise ungenutzt (ADR-2)
-* Asynchrone Berechnung erzeugt zwei Zustände statt einem («berechnet» / «wird berechnet»); die UI muss beide zeigen (ADR-4)
-* Jede Umplanung kostet einen Bestätigungsklick, auch die offensichtlich richtige (ADR-5)
-* Ein Konfigurationsmodell für Modi und Regeln muss gebaut und validiert sein, bevor der erste Modus läuft (ADR-6)
-* Ein Monolith skaliert nur als Ganzes; bei deutlich mehr Last wäre neu zu entscheiden
+- Modulgrenzen sind Disziplin, kein Zwang: der Compiler verhindert einen Direktzugriff quer durch die Module nicht; das muss im Review auffallen
+- Der Port ist der kleinste gemeinsame Nenner aller Provider; providerspezifische Stärken (Function Calling, Structured Output) bleiben teilweise ungenutzt (ADR-2)
+- Asynchrone Berechnung erzeugt zwei Zustände statt einem («berechnet» / «wird berechnet»); die UI muss beide zeigen (ADR-4)
+- Jede Umplanung kostet einen Bestätigungsklick, auch die offensichtlich richtige (ADR-5)
+- Ein Konfigurationsmodell für Modi und Regeln muss gebaut und validiert sein, bevor der erste Modus läuft (ADR-6)
+- Ein Monolith skaliert nur als Ganzes; bei deutlich mehr Last wäre neu zu entscheiden
 
 Weitere getroffene Entscheide (Kurzfassung, hergeleitet in SPEC.md Teil B):
 
-| ADR   | Entscheid                                                                             | Getragen von      |
-|-------|---------------------------------------------------------------------------------------|-------------------|
-| ADR-1 | Modularer Monolith, fachlich geschnitten                                              | Q3, Rahmenbedingungen |
-| ADR-2 | LLM nur hinter einem Port, ein Adapter, ein Fake; Antwort gegen Schema geprüft        | Q4, NfA-4         |
-| ADR-3 | Spielplan-Erzeugung deterministisch und regelbasiert; die KI plant nicht, sie schlägt vor | Q1, Q4         |
-| ADR-4 | Erfassung antwortet sofort; Plan- und Vorschlagsberechnung als Job                    | Q5, NfA-1         |
-| ADR-5 | HITL-Gate: kein KI-Vorschlag wird ohne Annahme persistiert, Protokoll append-only     | NfA-4             |
-| ADR-6 | Turniermodi, Punktesysteme, Tie-Breaker, Pausen- und Platzregeln als Konfiguration    | Q3                |
+| ADR   | Entscheid                                                                                                                   | Getragen von               |
+| ----- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| ADR-1 | Modularer Monolith, fachlich geschnitten                                                                                    | Q3, Rahmenbedingungen      |
+| ADR-2 | LLM nur hinter einem Port, ein Adapter, ein Fake; Antwort gegen Schema geprüft                                              | Q4, NfA-4                  |
+| ADR-3 | Spielplan-Erzeugung deterministisch und regelbasiert; die KI plant nicht, sie schlägt vor                                   | Q1, Q4                     |
+| ADR-4 | Erfassung antwortet sofort; Plan- und Vorschlagsberechnung als Job                                                          | Q5, NfA-1                  |
+| ADR-5 | HITL-Gate: kein KI-Vorschlag wird ohne Annahme persistiert, Protokoll append-only                                           | NfA-4                      |
+| ADR-6 | Turniermodi, Punktesysteme, Tie-Breaker, Pausen- und Platzregeln als Konfiguration                                          | Q3                         |
 | ADR-7 | Anmeldung über eigenes React-Frontend statt externem Formular-Dienst; öffentlicher `signup`-Endpunkt validiert serverseitig | NfA-3, Q3, Scope-Kontrolle |
 
-*Hinweis zur Nummerierung:* ADR-1 bis ADR-7 sind die Kurzfassungen aus SPEC.md Teil B. ADR-001 und ADR-002 sind die vollständig ausgearbeiteten Records in diesem Dokument. ADR-001 entspricht ADR-1, ADR-002 entspricht ADR-7.
+_Hinweis zur Nummerierung:_ ADR-1 bis ADR-7 sind die Kurzfassungen aus SPEC.md Teil B. ADR-001 und ADR-002 sind die vollständig ausgearbeiteten Records in diesem Dokument. ADR-001 entspricht ADR-1, ADR-002 entspricht ADR-7.
 
 ---
 
@@ -397,10 +394,10 @@ Die erste Fassung der SPEC sah vor, dass Teams sich über einen externen Formula
 
 Zu berücksichtigen waren:
 
-* Das Anmeldeformular ist die erste Berührung der Teams mit dem System; NfA-3 verlangt eine auf Mobile abgestimmte Oberfläche
-* Ein externer Dienst gibt weder das Datenmodell noch die Validierungsregeln vor, die Tournetty braucht (Kategorie, Teamname eindeutig pro Turnier)
-* Ein Import aus einem fremden Dienst ist ein zweites Systemteil, das gebaut, konfiguriert und beim Ausfall verstanden werden muss
-* Die Vertrauensgrenze besteht in beiden Varianten: Anmeldungen sind so oder so Fremddaten
+- Das Anmeldeformular ist die erste Berührung der Teams mit dem System; NfA-3 verlangt eine auf Mobile abgestimmte Oberfläche
+- Ein externer Dienst gibt weder das Datenmodell noch die Validierungsregeln vor, die Tournetty braucht (Kategorie, Teamname eindeutig pro Turnier)
+- Ein Import aus einem fremden Dienst ist ein zweites Systemteil, das gebaut, konfiguriert und beim Ausfall verstanden werden muss
+- Die Vertrauensgrenze besteht in beiden Varianten: Anmeldungen sind so oder so Fremddaten
 
 ## 3b.2 Entscheidung
 
@@ -418,43 +415,43 @@ Sicherheitlich ändert sich weniger als es scheint: Die Eingangsgrenze verschwin
 
 **Vorteile:**
 
-* Formular, Validierung, Spam-Schutz und Betrieb sind fertig und kosten keine Entwicklungszeit
-* Fällt Tournetty aus, laufen Anmeldungen trotzdem weiter ein
+- Formular, Validierung, Spam-Schutz und Betrieb sind fertig und kosten keine Entwicklungszeit
+- Fällt Tournetty aus, laufen Anmeldungen trotzdem weiter ein
 
 **Nachteile:**
 
-* Datenmodell und Validierung sind fremdbestimmt; «Teamname eindeutig pro Turnier» lässt sich dort nicht prüfen
-* Zusätzliche Import-Strecke mit eigenem Fehlerverhalten (Format geändert, Import verpasst, Duplikate)
-* Zweiter Anbieter, zweite Datenschutzbetrachtung für Kontaktdaten
-* Bruch im Nutzungserlebnis, NfA-3 nicht kontrollierbar
+- Datenmodell und Validierung sind fremdbestimmt; «Teamname eindeutig pro Turnier» lässt sich dort nicht prüfen
+- Zusätzliche Import-Strecke mit eigenem Fehlerverhalten (Format geändert, Import verpasst, Duplikate)
+- Zweiter Anbieter, zweite Datenschutzbetrachtung für Kontaktdaten
+- Bruch im Nutzungserlebnis, NfA-3 nicht kontrollierbar
 
 ### Alternative B: Anmeldung nur durch das Organisationsteam (kein öffentliches Formular)
 
 **Vorteile:**
 
-* Kein öffentlicher schreibender Endpunkt; die Eingangsgrenze entfällt vollständig
-* Kein Spam- und Missbrauchsrisiko
+- Kein öffentlicher schreibender Endpunkt; die Eingangsgrenze entfällt vollständig
+- Kein Spam- und Missbrauchsrisiko
 
 **Nachteile:**
 
-* Verlagert die manuelle Arbeit zurück auf das Organisationsteam, also genau das, was die Vision beseitigen will
-* Widerspricht dem MVP-Slice, der mit «Teams melden sich an» beginnt
+- Verlagert die manuelle Arbeit zurück auf das Organisationsteam, also genau das, was die Vision beseitigen will
+- Widerspricht dem MVP-Slice, der mit «Teams melden sich an» beginnt
 
 ## 3b.4 Konsequenzen
 
 ### Positive Konsequenzen
 
-* Ein System weniger; keine Import-Strecke, kein fremdes Datenmodell
-* Validierungsregeln liegen im `signup`-Modul, dort wo die Fachlogik sie kennt (Q3)
-* Anmeldung wird sofort bestätigt oder mit Grund abgelehnt (FR-7, Q5)
-* Nutzungserlebnis und Mobile-Tauglichkeit sind kontrollierbar (NfA-3)
+- Ein System weniger; keine Import-Strecke, kein fremdes Datenmodell
+- Validierungsregeln liegen im `signup`-Modul, dort wo die Fachlogik sie kennt (Q3)
+- Anmeldung wird sofort bestätigt oder mit Grund abgelehnt (FR-7, Q5)
+- Nutzungserlebnis und Mobile-Tauglichkeit sind kontrollierbar (NfA-3)
 
 ### Negative Konsequenzen / Trade-offs
 
-* Formular, serverseitige Validierung, Rate-Limit und Spam-Schutz sind selbst zu bauen; das hätte ein Dienst mitgebracht
-* Ein öffentlicher schreibender Endpunkt ist Angriffsfläche; Grenze 3 bekommt eine Ausnahme, die begründet und abgesichert sein muss
-* Fällt das Backend aus, können keine Anmeldungen eingehen; beim externen Dienst wären sie gepuffert worden
-* Die SPEC hat dafür noch keine nichtfunktionale Anforderung (Anmeldungen pro IP und Minute); offener Punkt in Abschnitt 7.9
+- Formular, serverseitige Validierung, Rate-Limit und Spam-Schutz sind selbst zu bauen; das hätte ein Dienst mitgebracht
+- Ein öffentlicher schreibender Endpunkt ist Angriffsfläche; Grenze 3 bekommt eine Ausnahme, die begründet und abgesichert sein muss
+- Fällt das Backend aus, können keine Anmeldungen eingehen; beim externen Dienst wären sie gepuffert worden
+- Die SPEC hat dafür noch keine nichtfunktionale Anforderung (Anmeldungen pro IP und Minute); offener Punkt in Abschnitt 7.9
 
 ---
 
@@ -462,13 +459,13 @@ Sicherheitlich ändert sich weniger als es scheint: Die Eingangsgrenze verschwin
 
 ## 4.1 Gewählter Stack
 
-| Bereich                        | Technologie                                                                             |
-| ------------------------------ | ----------------------------------------------------------------------------------------- |
-| Programmiersprache             | Java 25                                                                                 |
-| Framework                      | Spring Boot 4.1.1 (`spring-boot-starter-webmvc`), Frontend geplant mit React            |
-| Build-System                   | Maven (Wrapper `mvnw` im Repository)                                                    |
+| Bereich                        | Technologie                                                                              |
+| ------------------------------ | ---------------------------------------------------------------------------------------- |
+| Programmiersprache             | Java 25                                                                                  |
+| Framework                      | Spring Boot 4.1.1 (`spring-boot-starter-webmvc`), Frontend geplant mit React             |
+| Build-System                   | Maven (Wrapper `mvnw` im Repository)                                                     |
 | Datenbank                      | aktuell keine (Skelett hält noch keinen Zustand); geplant PostgreSQL via Heroku Postgres |
-| Tests                          | JUnit 5 über `spring-boot-starter-webmvc-test`                                          |
+| Tests                          | JUnit 5 über `spring-boot-starter-webmvc-test`                                           |
 | KI-Integration                 | noch nicht implementiert; geplant externer LLM-Provider hinter `PlanAdvisorPort` (ADR-2) |
 | Weitere relevante Bibliotheken | Spring Boot Maven Plugin; Diagramme als Mermaid im Repository                            |
 
@@ -559,10 +556,10 @@ Die Antwort ist bewusst noch ein reiner String; der Durchstich soll zeigen, dass
 
 ### Voraussetzungen
 
-* Java 25 (JDK)
-* Maven, nicht zwingend installiert, der Wrapper `./mvnw` liegt im Repository
-* Git
-* geplant ab Block 2: Node.js (Frontend) und Docker bzw. Heroku Postgres (Datenbank)
+- Java 25 (JDK)
+- Maven, nicht zwingend installiert, der Wrapper `./mvnw` liegt im Repository
+- Git
+- geplant ab Block 2: Node.js (Frontend) und Docker bzw. Heroku Postgres (Datenbank)
 
 ### Installation
 
@@ -594,88 +591,13 @@ Hello World
 
 ---
 
-# 5. Einsatz von KI bei der Entwicklung
+# 5. Evaluations- und Sicherheitsbasis
 
-## 5.1 Durch KI generierte Inhalte
-
-Ich habe KI (Claude CLI in IntelliJ) für folgende Aufgaben verwendet:
-
-| Bereich         | KI-Einsatz                                                                 | Übernommener Output                                                                                   |
-| --------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Projektstruktur | Vorschlag für einen fachlichen statt technischen Paketschnitt              | Zielstruktur aus Abschnitt 4.2 übernommen; der Ist-Code bleibt vorerst beim Initializr-Stand            |
-| Boilerplate     | Projektgerüst über Spring Initializr, nicht über die KI                    | `pom.xml`, Application-Klasse, Testklasse: Standard-Boilerplate, unverändert                           |
-| C4-Diagramm     | Mermaid-Code für Kontext- und Containersicht aus SPEC §1–§9 abgeleitet     | Diagrammstruktur übernommen, Beschriftungen und Vertrauensgrenzen selbst nachgezogen                    |
-| Code            | Kein generierter Fachcode; der Hello-World-Controller ist von Hand geschrieben | nichts                                                                                                 |
-| Dokumentation   | Ableitung von ADRs und Qualitätszielen aus der SPEC, Formulierungshilfe    | Entscheidtabelle ADR-1…ADR-6 als Gerüst; Begründungen und Priorisierung selbst gesetzt und geprüft      |
-
-### Beispiel 1
-
-**Aufgabe / Prompt:**
-«Leite aus SPEC.md (Ziel, Scope, Qualitätsziele, funktionale und nichtfunktionale Anforderungen) eine Kontext- und eine Containersicht sowie eine Paketstruktur ab. Nenne zu jedem Struktur-Entscheid das Qualitätsziel, aus dem er folgt, und was der Entscheid kostet.»
-
-**Generierter Vorschlag:**
-Ein modularer Monolith mit fachlich geschnittenen Paketen (`tournament`, `phase`, `schedule`, `court`, `scoring`, `proposal`, `dashboard`, `platform`), sechs ADRs mit Herleitung aus den Qualitätszielen, dazu eine Kontextsicht mit eingezeichneter Vertrauensgrenze.
-
-**Übernahme:**
-Struktur und ADR-Gerüst wurden übernommen, weil sie sich sauber auf die Qualitätsziele Q1–Q5 zurückführen lassen. Die Priorisierung der Qualitätsanforderungen (Abschnitt 3.4) und die Bewertung der Alternativen (Abschnitt 3.5) habe ich selbst gesetzt; die KI hatte Skalierbarkeit deutlich höher gewichtet, als es die Rahmenbedingung «< 50 gleichzeitige Nutzende» hergibt.
-
----
-
-## 5.2 Geprüfter, korrigierter oder verworfener KI-Output
-
-### Fall 1: Die KI soll den Spielplan generieren
-
-**KI-Vorschlag:**
-Die Spielplanerzeugung dem LLM zu übergeben: Teams, Felder und Zeitfenster als Prompt hineingeben und den fertigen Spielplan als Antwort zurückbekommen. Begründung des Vorschlags: das sei die «substanzielle KI-Funktion» des Projekts.
-
-**Prüfung:**
-Ich habe den Vorschlag gegen Qualitätsziel Q1 (Korrektheit) und Q4 (Testbarkeit) aus der SPEC gehalten und gefragt, wie sich die Invariante «ein Team spielt höchstens ein Spiel pro Slot» beweisen liesse.
-
-**Problem / Veto:**
-Ein generierter Spielplan ist nicht prüfbar, sondern nur plausibel. Round-Robin und K.-o.-Baum sind Regeln, keine Vorhersage: sie haben eine korrekte Lösung, die man aufschreiben kann. Ausserdem wäre der Kern der Anwendung nicht mehr deterministisch testbar, was Q4 direkt verletzt.
-
-**Eigene Korrektur:**
-Die Erzeugung bleibt deterministisch und regelbasiert im Modul `schedule` (ADR-3). Die KI arbeitet nur am **bestehenden** Plan: bei einem Teamausfall schlägt sie eine Umplanung vor, die anschliessend gegen Schema und Regelkern geprüft und vom Menschen freigegeben werden muss (ADR-2, ADR-5).
-
-### Diff
-
-```diff
-- ScheduleService.generate(): Prompt mit Teams/Feldern/Slots an LLM,
--   Antwort direkt als Spielplan speichern.
-+ schedule/generator/: Round-Robin und K.-o.-Baum deterministisch berechnen.
-+ schedule/invariants/: "ein Team, ein Slot" als prüfbare Invariante, unit-getestet.
-+ proposal/: LLM liefert bei Ausfall nur einen Vorschlag am bestehenden Plan;
-+   Schema- und Regelprüfung davor, menschliche Freigabe danach.
-```
-
-**Begründung:**
-Q1 steht in der SPEC an erster Stelle. Eine Regel, die immer gilt, ist einer Antwort vorzuziehen, die meistens stimmt, und nur die Regel lässt sich in einem Unit-Test ohne Modellaufruf belegen. Der KI-Anteil bleibt trotzdem substanziell: die Umplanung unter Nebenbedingungen ist der Fall, für den es keine einfache Regel gibt.
-
----
-
-### Fall 2: Paketstruktur nach Schichten
-
-**KI-Vorschlag:**
-Die klassische Spring-Boot-Aufteilung `controller/`, `service/`, `repository/`, `model/` weiterzuführen, so wie sie im Skelett mit `controller/TournamentController.java` bereits angelegt ist.
-
-**Veto / Korrektur:**
-Bei diesem Schnitt liegt ein neues Punktesystem verteilt über drei Pakete, was Q3 (Wartbarkeit) widerspricht. Prüffrage: *Wo muss ich überall hin, wenn ein Turnier 2 statt 3 Punkte für den Sieg vergibt?* Korrigiert auf den fachlichen Schnitt aus Abschnitt 4.2; Modi und Punktesysteme werden zusätzlich als Konfiguration statt als `if`-Kaskade abgelegt (ADR-6).
-
-```diff
-- ch.tournetty.tournetty_webapp.controller / service / repository / model
-+ ch.tournetty.tournament | phase | schedule{rules,generator,invariants}
-+                         | court | scoring | proposal | dashboard | platform
-```
-
----
-
-# 6. Evaluations- und Sicherheitsbasis
-
-## 6.1 Ziel
+## 5.1 Ziel
 
 Die Fälle prüfen, ob die zentralen Zusagen des Systems auch dann halten, wenn es unbequem wird: dass ein erzeugter Spielplan die Invariante «ein Team, ein Slot» nie verletzt (Q1), dass Randfälle wie ungerade Teamzahlen oder Gleichstände definiert enden (Q4), und dass kein KI-Vorschlag Daten verändert, bevor ein Mensch ihn angenommen hat (NfA-4). Die Fälle sind versioniert im Repository abgelegt (`src/test/java/ch/tournetty/corpus/`) und laufen ohne Aufruf des echten Modells gegen den `FakeAdvisor`.
 
-## 6.2 Repräsentative Evaluationsfälle
+## 5.2 Repräsentative Evaluationsfälle
 
 ### Fall 1: Normalfall (Gruppenphase für 12 Teams auf 3 Feldern)
 
@@ -687,10 +609,10 @@ Das System erzeugt deterministisch 18 Gruppenspiele (3 × 6) und verteilt sie au
 
 **Erwartete Eigenschaften:**
 
-* Jedes Team spielt genau einmal gegen jedes andere Team seiner Gruppe
-* Kein Team ist in zwei Spielen desselben Slots eingeplant (Q1)
-* In jedem belegten Slot sind alle 3 Felder besetzt, solange noch Spiele übrig sind (Q2)
-* Zweimaliges Generieren mit derselben Eingabe liefert denselben Plan (Q4)
+- Jedes Team spielt genau einmal gegen jedes andere Team seiner Gruppe
+- Kein Team ist in zwei Spielen desselben Slots eingeplant (Q1)
+- In jedem belegten Slot sind alle 3 Felder besetzt, solange noch Spiele übrig sind (Q2)
+- Zweimaliges Generieren mit derselben Eingabe liefert denselben Plan (Q4)
 
 **Erfolgskriterium:**
 Alle vier Eigenschaften sind als Assertions im Test hinterlegt und grün, ohne Modellaufruf.
@@ -707,9 +629,9 @@ Das System erzeugt einen gültigen Round-Robin mit Freilos-Runden für die Dreie
 
 **Erwartete Eigenschaften:**
 
-* Die Freilos-Runde ist explizit im Plan sichtbar, nicht ein stillschweigend leerer Slot
-* Kein Team wird benachteiligt durch zwei Spiele hintereinander ohne Pause (Pausenregel aus ADR-6)
-* Die Feldauslastung sinkt nachvollziehbar, statt dass ein Feld unbegründet leer bleibt (Q2)
+- Die Freilos-Runde ist explizit im Plan sichtbar, nicht ein stillschweigend leerer Slot
+- Kein Team wird benachteiligt durch zwei Spiele hintereinander ohne Pause (Pausenregel aus ADR-6)
+- Die Feldauslastung sinkt nachvollziehbar, statt dass ein Feld unbegründet leer bleibt (Q2)
 
 ---
 
@@ -723,9 +645,9 @@ Bereits gespielte Spiele bleiben unverändert. Das System markiert die offenen S
 
 **Erwartete Eigenschaften:**
 
-* Kein bereits erfasstes Ergebnis wird überschrieben oder gelöscht
-* Der Zielkonflikt wird sichtbar gemacht: minimal-invasiv (wenige Änderungen, Löcher im Feldplan) gegen volle Auslastung (Umwurf des Nachmittags); der Mensch entscheidet, das System entscheidet nicht still
-* Die Tabellenberechnung bleibt konsistent: gewertete Spiele des ausgefallenen Teams sind nach der konfigurierten Regel behandelt (ADR-6)
+- Kein bereits erfasstes Ergebnis wird überschrieben oder gelöscht
+- Der Zielkonflikt wird sichtbar gemacht: minimal-invasiv (wenige Änderungen, Löcher im Feldplan) gegen volle Auslastung (Umwurf des Nachmittags); der Mensch entscheidet, das System entscheidet nicht still
+- Die Tabellenberechnung bleibt konsistent: gewertete Spiele des ausgefallenen Teams sind nach der konfigurierten Regel behandelt (ADR-6)
 
 ---
 
@@ -739,10 +661,10 @@ Die Schemaprüfung lässt die Antwort passieren, die Regelprüfung lehnt sie ab.
 
 **Erwartete Eigenschaften:**
 
-* keine Halluzination / Unsicherheit kennzeichnen: erfundene Feld-IDs führen zur Ablehnung, nicht zum Anlegen eines neuen Felds
-* Zwei Prüfstufen, nicht eine: Format **und** Fachregeln (ADR-2, ADR-3)
-* Die Datenbank ist nach dem Fall im gleichen Zustand wie davor
-* Der Fall ist ohne echten Provider testbar, weil der Fake diese Antwort deterministisch liefert (Q4)
+- keine Halluzination / Unsicherheit kennzeichnen: erfundene Feld-IDs führen zur Ablehnung, nicht zum Anlegen eines neuen Felds
+- Zwei Prüfstufen, nicht eine: Format **und** Fachregeln (ADR-2, ADR-3)
+- Die Datenbank ist nach dem Fall im gleichen Zustand wie davor
+- Der Fall ist ohne echten Provider testbar, weil der Fake diese Antwort deterministisch liefert (Q4)
 
 ---
 
@@ -756,24 +678,24 @@ Der Text wird im Modul `signup` serverseitig validiert, längenbegrenzt und als 
 
 **Erwartete Eigenschaften:**
 
-* Fremddaten aus der Anmeldung werden serverseitig validiert und längenbegrenzt, bevor sie irgendwo weiterverwendet werden, unabhängig davon, ob sie über das eigene Formular oder per `curl` hereinkommen (Vertrauensgrenze 2 aus Abschnitt 2.3)
-* Keine Modellantwort verändert Daten ohne Regelprüfung und menschliche Freigabe (ADR-5)
-* Der Versuch ist im append-only Audit-Log nachvollziehbar
-* Kein Klarname und kein Kontaktdatum verlässt das System in Richtung Provider; der Planungskontext ist pseudonymisiert
+- Fremddaten aus der Anmeldung werden serverseitig validiert und längenbegrenzt, bevor sie irgendwo weiterverwendet werden, unabhängig davon, ob sie über das eigene Formular oder per `curl` hereinkommen (Vertrauensgrenze 2 aus Abschnitt 2.3)
+- Keine Modellantwort verändert Daten ohne Regelprüfung und menschliche Freigabe (ADR-5)
+- Der Versuch ist im append-only Audit-Log nachvollziehbar
+- Kein Klarname und kein Kontaktdatum verlässt das System in Richtung Provider; der Planungskontext ist pseudonymisiert
 
-## 6.3 Sicherheitsrelevante Daten
+## 5.3 Sicherheitsrelevante Daten
 
-| Datentyp                                   | Herkunft                    | Ziel                              | Schutzbedarf |
-| ------------------------------------------ | --------------------------- | --------------------------------- | ------------ |
-| Kontaktdaten Teamverantwortliche (Name, Mail) | öffentliches Anmeldeformular (`signup`) | Datenbank, nur Organisationsteam  | hoch         |
-| Team- und Gruppendaten                     | Organisationsteam / `signup` | Datenbank, Dashboard (öffentlich) | niedrig      |
-| Spielplan und Ergebnisse                   | System / Vorort-Erfassung   | Datenbank, Dashboard (öffentlich) | niedrig      |
-| Planungskontext für die KI (Slots, Felder, Paarungen, pseudonymisiert) | System | externer LLM-Provider  | mittel       |
-| API-Key des LLM-Providers                  | Provider-Konto              | nur Umgebungsvariable auf Heroku  | hoch         |
-| Zugangsdaten Organisationsteam             | Registrierung               | Datenbank (gehasht)               | hoch         |
-| Audit-Log (Vorschlag, Begründung, Entscheid) | System                    | Datenbank, append-only            | mittel       |
+| Datentyp                                                               | Herkunft                                | Ziel                              | Schutzbedarf |
+| ---------------------------------------------------------------------- | --------------------------------------- | --------------------------------- | ------------ |
+| Kontaktdaten Teamverantwortliche (Name, Mail)                          | öffentliches Anmeldeformular (`signup`) | Datenbank, nur Organisationsteam  | hoch         |
+| Team- und Gruppendaten                                                 | Organisationsteam / `signup`            | Datenbank, Dashboard (öffentlich) | niedrig      |
+| Spielplan und Ergebnisse                                               | System / Vorort-Erfassung               | Datenbank, Dashboard (öffentlich) | niedrig      |
+| Planungskontext für die KI (Slots, Felder, Paarungen, pseudonymisiert) | System                                  | externer LLM-Provider             | mittel       |
+| API-Key des LLM-Providers                                              | Provider-Konto                          | nur Umgebungsvariable auf Heroku  | hoch         |
+| Zugangsdaten Organisationsteam                                         | Registrierung                           | Datenbank (gehasht)               | hoch         |
+| Audit-Log (Vorschlag, Begründung, Entscheid)                           | System                                  | Datenbank, append-only            | mittel       |
 
-## 6.4 Vertrauensgrenzen
+## 5.4 Vertrauensgrenzen
 
 ### Trust Boundary 1: Tournetty ↔ externer LLM-Provider
 
@@ -805,7 +727,7 @@ Unbefugtes Ändern von Spielplan oder Ergebnissen über einen ungeschützten Sch
 **Schutzmassnahme:**
 Lesende Dashboard-Endpunkte sind öffentlich, alle schreibenden Endpunkte authentifiziert. Nach fünf fehlgeschlagenen Anmeldeversuchen wird das Konto gesperrt (NfA-2; gilt für Organisationsteam und Vorort-Mitarbeitende; Teams haben kein Login, siehe offener Punkt in Abschnitt 7.9). Einzige Ausnahme ist der `signup`-Endpunkt aus Trust Boundary 2: er schreibt ohne Authentifizierung und ist deshalb bewusst eng gefasst: er kann nur Anmeldungen im Status `PENDING` anlegen, keine Turnierdaten verändern, und unterliegt einem Rate-Limit.
 
-## 6.5 Human-in-the-Loop
+## 5.5 Human-in-the-Loop
 
 Folgende Aktion darf **niemals ohne menschliche Freigabe** erfolgen:
 
@@ -817,261 +739,8 @@ Eine Umplanung greift in einen laufenden Betrieb ein: Teams stehen bereits an Fe
 
 ### Technische Absicherung
 
-* Ein `Proposal` ist ein eigener Datensatz **ohne Wirkung**: es enthält den vorgeschlagenen Plan, die Begründung und den Status `PENDING`. Es verändert keine Spiel- oder Feldzuteilung.
-* Es existiert keine Codepfad-Verbindung vom LLM-Adapter zu den schreibenden Repositories der Module `schedule` und `court`. Der einzige Weg dorthin führt über `proposal.accept(userId)`, ausgelöst durch einen expliziten Endpunkt, der Authentifizierung verlangt.
-* Vor `accept` läuft die Regelprüfung erneut; verletzt der Vorschlag eine Invariante, ist die Annahme technisch nicht möglich.
-* Vorschlag, Begründung, Entscheid (angenommen / verworfen), Zeitpunkt und Benutzer werden append-only im Audit-Log protokolliert (ADR-5).
-* Ein Test im Korpus prüft genau das: nach einem Modellaufruf ohne Freigabe ist der Datenbestand des Spielplans unverändert.
-
----
-
-# 7. Projekt-Kontext-Dokument v0.1
-
-> Dieses Dokument soll zusätzlich als eigene Datei im Repository abgelegt und dem verwendeten KI-Werkzeug als Kontext zur Verfügung gestellt werden.
->
-> **Umgesetzt:** Der Inhalt dieses Abschnitts liegt als eigenständige, gepflegte Datei
-> [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) im Repository-Root und wird über
-> [`CLAUDE.md`](CLAUDE.md) automatisch als Kontext an das KI-Werkzeug übergeben.
-> **Massgebend ist `PROJECT_CONTEXT.md`**; der folgende Abschnitt ist die Herleitung dazu.
-
----
-
-## Projekt-Kontext v0.1
-
-### 7.1 Zweck und Ziele
-
-**Projekt:** Tournetty
-
-**Zweck:**
-Tournetty plant Plausch-Volleyball-Turniere für Organisationsteams. Das System nimmt Team-Anmeldungen entgegen, erzeugt regelbasiert Gruppen- und K.-o.-Phasen, verteilt die Spiele auf die verfügbaren Felder und Zeitfenster, erfasst Ergebnisse und berechnet Tabellen. Fällt kurzfristig ein Team aus, schlägt eine KI eine Umplanung vor; anwenden darf sie der Mensch.
-
-**Nicht-Ziele:**
-
-* Turniermodus Schweizer System
-* Erfassung einzelner Spieler eines Teams
-* Anzeige von Sponsoren
-* Selbstverwaltung / Mutation durch Teams, Login für Teams
-* Live-Ticker
-* Automatisches Anwenden von KI-Vorschlägen ohne Freigabe
-
-### 7.2 Architektur
-
-**Architekturstil:**
-Modularer Monolith mit fachlichem Schnitt; Ports und Adapter für alles, was das System verlässt (ADR-001, ADR-2).
-
-**Begründung:**
-Ein Team, ein Deployment-Ziel, weniger als 50 gleichzeitige Nutzende: verteilte Systeme verbessern hier kein Qualitätsziel. Der fachliche Schnitt hält Erweiterungen um Turniermodi lokal (Q3) und die Invarianten an einer Stelle prüfbar (Q1, Q4).
-
-**Zentrale Architekturprinzipien:**
-
-* Regeln vor Modell: der Spielplan entsteht deterministisch, die KI arbeitet nur am bestehenden Plan (ADR-3)
-* Ein Weg nach aussen: LLM-Zugriff gebündelt hinter einem Port, mit Adapter und Fake (ADR-2)
-* Freigabe vor Wirkung: kein Vorschlag verändert Daten vor der Annahme durch einen Menschen (ADR-5)
-* Konfiguration statt Code für Modi, Punktesysteme, Tie-Breaker, Pausen- und Platzregeln (ADR-6)
-* Sofort antworten, im Hintergrund rechnen (ADR-4)
-* Fremddaten werden an der Grenze normalisiert, nie roh weiterverarbeitet, auch dann, wenn sie aus dem eigenen Frontend kommen (ADR-002)
-
-### 7.3 Technologie-Stack
-
-* **Sprache:** Java 25
-* **Framework:** Spring Boot 4.1.1 (Backend), React (Frontend inkl. eigenem Anmeldeformular, ab Block 2, ADR-002)
-* **Datenbank:** PostgreSQL (geplant, Heroku Postgres); im aktuellen Skelett noch keine
-* **Testing:** JUnit 5 via `spring-boot-starter-webmvc-test`
-* **KI:** externer LLM-Provider hinter `PlanAdvisorPort`, deterministischer `FakeAdvisor` für Tests
-* **Deployment:** Backend auf Heroku, Frontend auf Cloudflare; Build mit Maven Wrapper
-
-### 7.4 Struktur und Konventionen
-
-#### Paket-/Modulstruktur
-
-```text
-ch.tournetty
-├── tournament/     # FR-1 · Turnier, Team, Gruppe, Spielfeld
-├── phase/          # FR-3 · Phasenfolge und Übergänge
-├── schedule/       # FR-2 · rules/ · generator/ · invariants/
-├── court/          # FR-5 · Feldzuteilung und Auslastung
-├── scoring/        # FR-4 · Tabelle, Tie-Breaker, K.-o.-Weiterleitung
-├── proposal/       # ADR-5 · Vorschlag, Begründung, Annahme
-├── signup/         # FR-7 · ADR-002 · öffentlicher Anmelde-Endpunkt
-├── dashboard/      # FR-6 · Lesesichten
-└── platform/       # llm/ · audit/ · persistence/
-```
-
-```text
-frontend/
-├── admin/          # authentifiziert: Planung, Erfassung, Freigabe
-└── signup/         # FR-7 · öffentliches Anmeldeformular
-```
-
-#### Namenskonventionen
-
-* Klassen: `UpperCamelCase`, fachlich benannt (`RoundRobinGenerator`, `CourtAssignment`), keine `…Manager`/`…Helper`
-* Funktionen/Methoden: `lowerCamelCase`, Verb voran (`generateSchedule`, `acceptProposal`)
-* REST-Endpunkte: `/api/<ressource>` im Plural, kebab-case (`/api/tournaments/{id}/schedule`), Verben ausschliesslich über HTTP-Methoden
-* Tests: `<Klasse>Test` für Unit-Tests, `<Fall>CorpusTest` für versionierte Evaluationsfälle; Methoden nach `should…When…`
-* Datenbankobjekte: `snake_case`, Tabellen im Plural (`tournaments`, `matches`, `court_assignments`), Fremdschlüssel `<tabelle_singular>_id`
-
-#### Coding-Konventionen
-
-* Kein Modul greift auf interne Klassen eines anderen Moduls zu, sondern nur auf dessen öffentliche Schnittstelle
-* Fachlogik enthält keine Framework-Annotationen dort, wo es vermeidbar ist; sie soll ohne Spring-Kontext testbar sein
-* Turnierregeln stehen nie als `if`-Kaskade im Code, sondern als Konfiguration (ADR-6)
-* Jede Änderung an `schedule/` braucht einen Test, der die Invariante «ein Team, ein Slot» prüft
-* Keine Secrets im Code oder in `application.properties`, sondern nur Umgebungsvariablen
-* Fehler werden explizit behandelt; kein stilles Verschlucken von Exceptions
-
-### 7.5 Qualitätsanforderungen
-
-Die wichtigsten Qualitätsziele sind (Reihenfolge gilt bei Konflikten, siehe SPEC §3):
-
-1. **Korrektheit**
-   Ein Team spielt höchstens ein Spiel pro Slot; Tabellen und K.-o.-Weiterleitungen sind nachrechenbar. Diese Invariante ist an einer Stelle implementiert und getestet.
-
-2. **Wartbarkeit**
-   Turniermodi, Kategorien, Punktesysteme, Pausenzeiten und Platzregeln sind konfigurierbar statt fest im Code. Ein neues Punktesystem berührt genau ein Paket.
-
-3. **Testbarkeit**
-   Spielplanerstellung, Tabellenberechnung, Tie-Breaker und Regelprüfungen sind deterministisch und laufen automatisiert, der KI-Pfad ebenfalls, gegen den Fake statt gegen den Provider.
-
-Weitere Ziele: Regelmässigkeit (Felder pro Slot ausgelastet), Performance (Erfassung antwortet sofort, Berechnung im Hintergrund), Nachvollziehbarkeit (KI begründet, Mensch entscheidet, alles protokolliert).
-
-### 7.6 Sicherheits-Leitplanken
-
-Die folgenden Regeln sind verbindlich:
-
-* Daten aus dem Anmeldeformular gelten als ungeprüfte Fremddaten und werden ausschliesslich über `signup/` serverseitig validiert und normalisiert eingelesen. Validierung im React-Frontend zählt nie als Schutzmassnahme.
-* Der `signup`-Endpunkt ist der einzige unauthentifizierte Schreib-Endpunkt. Er darf ausschliesslich Anmeldungen im Status `PENDING` anlegen und unterliegt einem Rate-Limit pro IP.
-* Es gibt genau einen Ausgang zum LLM-Provider (`PlanAdvisorPort`); kein Modul ruft den Provider direkt.
-* Der an den Provider gesendete Planungskontext ist pseudonymisiert: keine Klarnamen, keine Kontaktdaten.
-* Jede Modellantwort wird zweistufig geprüft: Schema und Turnierregeln.
-* KI-generierte Inhalte werden nicht ungeprüft übernommen.
-* Das Anwenden eines KI-Spielplanvorschlags benötigt immer menschliche Freigabe.
-* Geheimnisse/API-Keys dürfen nicht im Repository gespeichert werden, sondern nur in Umgebungsvariablen.
-* Schreibende Endpunkte sind authentifiziert; nach fünf Fehlversuchen wird das Konto gesperrt (NfA-2).
-* Vorschlag, Begründung und Entscheid werden append-only protokolliert und nicht überschrieben.
-
-### 7.7 Regeln für den Einsatz von KI
-
-Die KI darf:
-
-* Umplanungen am bestehenden Spielplan vorschlagen, inklusive Begründung
-* auf Anfrage eine Gruppenaufteilung anhand der Teilnehmerzahl vorschlagen
-* Boilerplate und Vorschläge generieren.
-* Tests oder Dokumentationsentwürfe vorschlagen.
-
-Die KI darf **nicht selbstständig**:
-
-* den initialen Spielplan erzeugen; das ist deterministisch und regelbasiert (ADR-3)
-* Daten in der Datenbank verändern, insbesondere keine Spiele, Feldzuteilungen oder Ergebnisse
-* sicherheitskritische Aktionen ausführen.
-* Architekturentscheidungen ohne Prüfung als verbindlich festlegen.
-
-KI-generierter Code muss vor der Übernahme geprüft werden auf:
-
-* fachliche Korrektheit,
-* Sicherheitsprobleme,
-* Architekturkonformität,
-* unnötige Abhängigkeiten,
-* Fehlerbehandlung,
-* Testbarkeit.
-
-### 7.8 Aktuelle Architekturentscheidungen
-
-| ADR     | Entscheidung                                                                     | Status   |
-| ------- | -------------------------------------------------------------------------------- | -------- |
-| ADR-001 | Modularer Monolith, fachlich geschnitten, mit Ports und Adaptern                 | Accepted |
-| ADR-2   | LLM nur hinter einem Port, ein Adapter, ein Fake; Antwort gegen Schema geprüft   | Accepted |
-| ADR-3   | Spielplanerzeugung deterministisch und regelbasiert; die KI schlägt nur vor      | Accepted |
-| ADR-4   | Erfassung antwortet sofort; Plan- und Vorschlagsberechnung laufen als Job        | Accepted |
-| ADR-5   | HITL-Gate: kein Vorschlag wird ohne Annahme persistiert, Protokoll append-only   | Accepted |
-| ADR-6   | Turniermodi, Punktesysteme, Tie-Breaker, Pausen- und Platzregeln als Konfiguration | Accepted |
-| ADR-002 | Eigenes Anmeldeformular im React-Frontend statt externem Formular-Dienst; öffentlicher `signup`-Endpunkt validiert serverseitig | Accepted |
-
-### 7.9 Offene Punkte
-
-* [ ] NfA-2 fordert Kontosperrung nach fünf Fehlversuchen, während «Login für Teams» ausgeschlossen ist: für wen genau gilt die Anforderung? Annahme bis auf Weiteres: nur Organisationsteam und Vorort-Mitarbeitende.
-* [ ] Für den öffentlichen `signup`-Endpunkt (ADR-002) fehlt eine nichtfunktionale Anforderung: Wie viele Anmeldungen pro IP und Minute sind zulässig, und was passiert bei Überschreitung? Startwert zur Kalibrierung: 5 Anmeldungen pro IP und Stunde.
-* [ ] Braucht die Anmeldung eine Bestätigung per E-Mail (Double Opt-in), oder genügt die Annahme durch den Organisator als Prüfung? Annahme bis auf Weiteres: die Annahme durch den Organisator genügt.
-* [ ] SPEC §7 «Evaluation» ist leer, obwohl Q4 und NfA-4 einen versionierten Testkorpus voraussetzen; die Fälle aus Abschnitt 6.2 in die nächste SPEC-Fassung übernehmen.
-* [ ] Zielkonflikt FR-2 («möglichst wenig Änderungen») gegen Q2 (volle Feldauslastung): Wie wird die Abwägung dem Organisator zur Auswahl gestellt: zwei Varianten oder ein Schieberegler?
-* [ ] Wahl des konkreten LLM-Providers und des Kostenrahmens ist offen
-* [ ] Persistenz noch nicht implementiert: JPA/Hibernate oder JDBC, Migrationswerkzeug (Flyway/Liquibase)
-* [ ] Umgang mit bereits gespielten Partien eines ausgefallenen Teams (annullieren oder als Forfait werten) muss als Konfigurationsregel definiert werden
-
-### 7.10 Änderungshistorie
-
-| Version | Datum      | Änderung                                                                  |
-| ------- | ---------- | ------------------------------------------------------------------------- |
-| 0.1     | 03.09.2026 | Initiale Version                                                          |
-| 0.2     | 07.09.2026 | Kontext-Dokument aus SPEC.md v0.1 abgeleitet und vollständig ausgefüllt   |
-| 0.3     | 07.09.2026 | ADR-002: eigenes Anmeldeformular statt externem Formular-Dienst; C4-Sichten, Vertrauensgrenze 2, Modulstruktur (`intake` → `signup`) und Sicherheits-Leitplanken angepasst |
-| 0.4     | 24.09.2026 | Stakeholder (§1.3) überarbeitet: Dublette entfernt, auf vier Stakeholder verdichtet (Organisationsteam/Veranstalter, Teams/Teamverantwortliche, Vorort-Mitarbeitende, Publikum) mit Bezug auf FR/NfA/ADR; Akteurstabelle und C4-Diagramme in §2.1/§2.2 auf dieselben Bezeichnungen angeglichen |
-| ...     |            |                                                                           |
-| 1.0     |            |                                                                           |
-
----
-
-# 8. Repository und Nachweis
-
-**Repository-URL:**
-https://github.com/thnhlng/tournetty-webapp
-
-Das Repository enthält mindestens:
-
-* [x] lauffähiges Projektskelett
-* [x] initiale Paket-/Modulstruktur
-* [x] Hello-World-Endpoint
-* [ ] README mit Setup-Anleitung *(README enthält bisher nur den Projektnamen; Setup aus Abschnitt 4.4 übernehmen)*
-* [x] C4-Diagramme bzw. Diagrammquellen *(Mermaid in `projekt-konzeption.md` und `mermaid.md`)*
-* [x] ADR
-* [x] Projekt-Kontext-Dokument *(`PROJECT_CONTEXT.md` im Repository-Root, als KI-Kontext über `CLAUDE.md` eingebunden)*
-* [x] dokumentierten KI-Einsatz
-* [x] mindestens einen dokumentierten Diff / eine Veto-Notiz
-* [x] keine Secrets oder API-Keys
-
----
-
-# 9. Abgabe-Checkliste
-
-## PDF
-
-* [x] Problem- und Lösungsskizze enthalten
-* [x] Vision in einem Satz
-* [x] Stakeholder und Kerninteressen dokumentiert
-* [x] 3–5 Kernfunktionen vorhanden
-* [x] KI-Nutzen pro Kernfunktion beschrieben
-* [x] C4 Level 1 enthalten
-* [x] C4 Level 2 enthalten
-* [x] Daten-/Vertrauensgrenzen im C4-Diagramm sichtbar
-* [x] ADR enthalten
-* [x] Qualitätsanforderungen im ADR explizit genannt
-* [x] Evaluationsfälle enthalten
-* [x] Human-in-the-Loop-Aktion definiert
-* [x] KI-Generierungsnotiz enthalten
-* [x] KI-Prüf-/Veto-Notiz enthalten
-* [x] Repository-URL angegeben
-
-## Repository
-
-* [x] Anwendung startet
-* [x] Hello-World-Endpoint funktioniert
-* [ ] Setup-Anleitung funktioniert *(noch ins README übertragen)*
-* [x] Projektstruktur nachvollziehbar
-* [ ] Projekt-Kontext v0.1 vorhanden *(als eigene Datei noch anzulegen)*
-* [x] Diff/Veto dokumentiert
-* [x] Repository ist für die Bewertung zugänglich
-
----
-
-# 10. Kurzfazit
-
-In Block 1 ist aus einer Projektidee eine belastbare Grundlage geworden: Die SPEC hält fest, **was** gelten muss (Ziel, Scope, priorisierte Qualitätsziele, funktionale und nichtfunktionale Anforderungen), und dieses Dokument leitet daraus das **Wie** ab: Kontext- und Containersicht mit einer Vertrauensgrenze, die zwei Durchstiche hat, sowie sechs Architekturentscheide, die jeweils auf ein Qualitätsziel zurückgeführt und mit ihrem Preis benannt sind. Der zentrale Entscheid ist, dass der Spielplan deterministisch und regelbasiert entsteht und die KI nur am bestehenden Plan Vorschläge macht, die ein Mensch freigeben muss. Technisch steht ein lauffähiges Spring-Boot-Skelett mit einem Hello-World-Endpoint unter `/tournament/api/hello`. Damit sind Struktur, Grenzen und Prüfkriterien geklärt, bevor die erste Fachlogik geschrieben wird.
-
-**Nächste Schritte:**
-
-* Fachlichen Paketschnitt aus Abschnitt 4.2 im Code anlegen und den Initializr-Schnitt `controller/` ablösen
-* Persistenz aufsetzen (PostgreSQL, Migrationswerkzeug) und FR-1 (CRUD für Turnier, Team, Gruppe, Spielfeld) implementieren
-* Round-Robin-Generator mit der Invariante «ein Team, ein Slot» inklusive Unit-Tests bauen
-* Testkorpus aus Abschnitt 6.2 versioniert im Repository anlegen und in die SPEC zurückschreiben
-* README um die Setup-Anleitung ergänzen und den Projekt-Kontext als eigene Datei `PROJECT_CONTEXT.md` ablegen
-* LLM-Port mit `FakeAdvisor` anlegen, bevor der erste echte Provider angebunden wird
+- Ein `Proposal` ist ein eigener Datensatz **ohne Wirkung**: es enthält den vorgeschlagenen Plan, die Begründung und den Status `PENDING`. Es verändert keine Spiel- oder Feldzuteilung.
+- Es existiert keine Codepfad-Verbindung vom LLM-Adapter zu den schreibenden Repositories der Module `schedule` und `court`. Der einzige Weg dorthin führt über `proposal.accept(userId)`, ausgelöst durch einen expliziten Endpunkt, der Authentifizierung verlangt.
+- Vor `accept` läuft die Regelprüfung erneut; verletzt der Vorschlag eine Invariante, ist die Annahme technisch nicht möglich.
+- Vorschlag, Begründung, Entscheid (angenommen / verworfen), Zeitpunkt und Benutzer werden append-only im Audit-Log protokolliert (ADR-5).
+- Ein Test im Korpus prüft genau das: nach einem Modellaufruf ohne Freigabe ist der Datenbestand des Spielplans unverändert.
